@@ -6,9 +6,10 @@ import torchvision.transforms as transforms
 
 
 def load_data():
-    transform = transforms.Compose(
-        [transforms.ToTensor(),
-         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.5, 0.5, 0.5), (1.0, 1.0, 1.0))
+    ])
 
     batch_size = 4
 

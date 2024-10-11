@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
+
 class ThreeLayerCNN(nn.Module):
     def __init__(self):
         super(ThreeLayerCNN, self).__init__()
@@ -26,6 +27,9 @@ class ThreeLayerCNN(nn.Module):
         return x
 
 if __name__ == '__main__':
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f'Using device: {device}')
     train_loader, test_loader = load_data()
     model = ThreeLayerCNN()
     criterion = nn.CrossEntropyLoss()
@@ -57,5 +61,5 @@ if __name__ == '__main__':
     PATH = './cifar_net.pth'
     torch.save(model.state_dict(), PATH)
 
-    # model.load_state_dict(torch.load(PATH, weights_only=True))
-    # outputs = model(images)
+    model.load_state_dict(torch.load(PATH, weights_only=True))
+    outputs = model(images)
