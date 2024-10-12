@@ -8,7 +8,7 @@ from net import Net, Net_A1, Net_A2, Net_B, Net_C, Net_D, Net_E, Net_5A
 import copy
 import time
 
-
+# ok
 def train_net(net, trainloader, valloader, optimizer, criterion, epochs=300, patience=10):
 
     net.train()
@@ -28,7 +28,6 @@ def train_net(net, trainloader, valloader, optimizer, criterion, epochs=300, pat
             optimizer.step()
             running_loss += loss.item()
 
-        # 在验证集上计算性能
         val_acc = evaluate_net(net, valloader)
         print(f'Epoch {epoch + 1}, Loss: {running_loss / len(trainloader):.4f}, Val Acc: {val_acc * 100:.2f}%')
 
@@ -64,7 +63,7 @@ def evaluate_net(net, dataloader):
 
 def test_net(net, testloader):
     net.eval()
-    num_classes = 10  # 假设有 10 个类别
+    num_classes = 10
     true_positives = [0] * num_classes
     false_negatives = [0] * num_classes
 
