@@ -222,7 +222,7 @@ class Net_E(nn.Module):
 
 class Net_5A(nn.Module):
     def __init__(self):
-        super(Net_A1, self).__init__()
+        super(Net_5A, self).__init__()
         negative_slope = 0.01
         self.conv1 = nn.Conv2d(3, 64, kernel_size=5, stride=1, padding=0)
         self.lrelu1 = nn.LeakyReLU(negative_slope)

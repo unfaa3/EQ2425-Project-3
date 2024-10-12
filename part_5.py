@@ -102,6 +102,18 @@ if __name__ == '__main__':
 
     optimizer = optim.SGD(net.parameters(), lr=1e-3)
     print("Training Net...")
-    train_net(net, trainloader, optimizer)
+    train_net(net, trainloader, valloader, optimizer)
     print("Testing Net...")
     recall = test_net(net, testloader)
+
+
+    print("Training Net with new learning rate...")
+    print("*************************")
+    print("*************************")
+    optimizer_2 = optim.SGD(net.parameters(), lr=0.1)
+    print("Training Net...")
+    train_net(net, trainloader, valloader, optimizer_2)
+    print("Testing Net...")
+    recall_2 = test_net(net, testloader)
+
+
