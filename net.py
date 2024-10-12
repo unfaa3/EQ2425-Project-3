@@ -35,21 +35,17 @@ class Net(nn.Module):
 class Net_A1(nn.Module):
     def __init__(self):
         super(Net_A1, self).__init__()
-        # 第一层卷积
         self.conv1 = nn.Conv2d(3, 64, kernel_size=5, stride=1, padding=0)
         self.relu1 = nn.ReLU()
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        # 第二层卷积
         self.conv2 = nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=0)
         self.relu2 = nn.ReLU()
         self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        # 第三层卷积
         self.conv3 = nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=0)
         self.pool3 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        # 全连接层
         self.fc1 = nn.Linear(256 * 2 * 2, 512)
         self.relu_fc1 = nn.ReLU()
         self.fc2 = nn.Linear(512, 10)
@@ -66,7 +62,6 @@ class Net_A1(nn.Module):
 class Net_A2(nn.Module):
     def __init__(self):
         super(Net_A2, self).__init__()
-        # 原始卷积层保持不变
         self.conv1 = nn.Conv2d(3, 24, kernel_size=5, stride=1, padding=0)
         self.relu1 = nn.ReLU()
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
@@ -98,21 +93,17 @@ class Net_A2(nn.Module):
 class Net_B(nn.Module):
     def __init__(self):
         super(Net_B, self).__init__()
-        # 第一层卷积，滤波器大小7x7
         self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=1, padding=0)
         self.relu1 = nn.ReLU()
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        # 第二层卷积，滤波器大小5x5
         self.conv2 = nn.Conv2d(64, 128, kernel_size=5, stride=1, padding=0)
         self.relu2 = nn.ReLU()
         self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        # 第三层卷积保持不变
         self.conv3 = nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=0)
         self.pool3 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        # 全连接层保持不变
         self.fc1 = nn.Linear(256 * 1 * 1, 512)  # 需要根据输出大小调整
         self.relu_fc1 = nn.ReLU()
         self.fc2 = nn.Linear(512, 10)
@@ -131,19 +122,18 @@ class Net_C(nn.Module):
     def __init__(self):
         super(Net_C, self).__init__()
         negative_slope = 0.01
-        # 卷积层和滤波器大小根据上一步的preferred_net
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=1, padding=0)
+        self.conv1 = nn.Conv2d(3, 24, kernel_size=5, stride=1, padding=0)
         self.lrelu1 = nn.LeakyReLU(negative_slope)
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        self.conv2 = nn.Conv2d(64, 128, kernel_size=5, stride=1, padding=0)
+        self.conv2 = nn.Conv2d(24, 48, kernel_size=3, stride=1, padding=0)
         self.lrelu2 = nn.LeakyReLU(negative_slope)
         self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        self.conv3 = nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=0)
+        self.conv3 = nn.Conv2d(48, 96, kernel_size=3, stride=1, padding=0)
         self.pool3 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        self.fc1 = nn.Linear(256 * 1 * 1, 512)
+        self.fc1 = nn.Linear(96 * 2 * 2, 512)
         self.lrelu_fc1 = nn.LeakyReLU(negative_slope)
         self.fc2 = nn.Linear(512, 10)
 
@@ -151,7 +141,7 @@ class Net_C(nn.Module):
         x = self.pool1(self.lrelu1(self.conv1(x)))
         x = self.pool2(self.lrelu2(self.conv2(x)))
         x = self.pool3(self.conv3(x))
-        x = x.view(-1, 256 * 1 * 1)
+        x = x.view(-1, 96 * 2 * 2)
         x = self.lrelu_fc1(self.fc1(x))
         x = self.fc2(x)
         return x
@@ -160,29 +150,29 @@ class Net_C(nn.Module):
 class Net_D(nn.Module):
     def __init__(self):
         super(Net_D, self).__init__()
-        negative_slope = 0.01
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=1, padding=0)
-        self.lrelu1 = nn.LeakyReLU(negative_slope)
+        self.conv1 = nn.Conv2d(3, 24, kernel_size=5, stride=1, padding=0)
+        self.relu1 = nn.ReLU()
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        self.conv2 = nn.Conv2d(64, 128, kernel_size=5, stride=1, padding=0)
-        self.lrelu2 = nn.LeakyReLU(negative_slope)
+        self.conv2 = nn.Conv2d(24, 48, kernel_size=3, stride=1, padding=0)
+        self.relu2 = nn.ReLU()
         self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        self.conv3 = nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=0)
+        self.conv3 = nn.Conv2d(48, 96, kernel_size=3, stride=1, padding=0)
         self.pool3 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        self.fc1 = nn.Linear(256 * 1 * 1, 512)
-        self.lrelu_fc1 = nn.LeakyReLU(negative_slope)
+        self.fc1 = nn.Linear(96 * 2 * 2, 512)
+        self.relu_fc1 = nn.ReLU()
         self.dropout = nn.Dropout(0.3)
         self.fc2 = nn.Linear(512, 10)
+        self.softmax = nn.Softmax(dim=1)
 
     def forward(self, x):
-        x = self.pool1(self.lrelu1(self.conv1(x)))
-        x = self.pool2(self.lrelu2(self.conv2(x)))
+        x = self.pool1(self.relu1(self.conv1(x)))
+        x = self.pool2(self.relu2(self.conv2(x)))
         x = self.pool3(self.conv3(x))
-        x = x.view(-1, 256 * 1 * 1)
-        x = self.lrelu_fc1(self.fc1(x))
+        x = x.view(-1, 96 * 2 * 2)
+        x = self.relu_fc1(self.fc1(x))
         x = self.dropout(x)
         x = self.fc2(x)
         return x
@@ -191,32 +181,31 @@ class Net_D(nn.Module):
 class Net_E(nn.Module):
     def __init__(self):
         super(Net_E, self).__init__()
-        negative_slope = 0.01
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=1, padding=0)
-        self.lrelu1 = nn.LeakyReLU(negative_slope)
-        self.bn1 = nn.BatchNorm2d(64)
+        self.conv1 = nn.Conv2d(3, 24, kernel_size=5, stride=1, padding=0)
+        self.relu1 = nn.ReLU()
+        self.bn1 = nn.BatchNorm2d(24)
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        self.conv2 = nn.Conv2d(64, 128, kernel_size=5, stride=1, padding=0)
-        self.lrelu2 = nn.LeakyReLU(negative_slope)
-        self.bn2 = nn.BatchNorm2d(128)
+        self.conv2 = nn.Conv2d(24, 48, kernel_size=3, stride=1, padding=0)
+        self.relu2 = nn.ReLU()
+        self.bn2 = nn.BatchNorm2d(48)
         self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        self.conv3 = nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=0)
-        self.bn3 = nn.BatchNorm2d(256)
+        self.conv3 = nn.Conv2d(48, 96, kernel_size=3, stride=1, padding=0)
+        self.bn3 = nn.BatchNorm2d(96)
         self.pool3 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        self.fc1 = nn.Linear(256 * 1 * 1, 512)
-        self.lrelu_fc1 = nn.LeakyReLU(negative_slope)
+        self.fc1 = nn.Linear(96 * 2 * 2, 512)
+        self.relu_fc1 = nn.ReLU()
         self.bn_fc = nn.BatchNorm1d(512)
         self.fc2 = nn.Linear(512, 10)
 
     def forward(self, x):
-        x = self.pool1(self.bn1(self.lrelu1(self.conv1(x))))
-        x = self.pool2(self.bn2(self.lrelu2(self.conv2(x))))
+        x = self.pool1(self.bn1(self.relu1(self.conv1(x))))
+        x = self.pool2(self.bn2(self.relu2(self.conv2(x))))
         x = self.pool3(self.bn3(self.conv3(x)))
-        x = x.view(-1, 256 * 1 * 1)
-        x = self.bn_fc(self.lrelu_fc1(self.fc1(x)))
+        x = x.view(-1, 96 * 2 * 2)
+        x = self.bn_fc(self.relu_fc1(self.fc1(x)))
         x = self.fc2(x)
         return x
 

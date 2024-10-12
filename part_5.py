@@ -9,7 +9,7 @@ import copy
 import time
 
 # ok
-def train_net(net, trainloader, valloader, optimizer, criterion, epochs=300, patience=10):
+def train_net(net, trainloader, valloader, optimizer, criterion, epochs=300, patience=20):
 
     net.train()
     best_model_wts = copy.deepcopy(net.state_dict())

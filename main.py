@@ -3,10 +3,10 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from net import Net, Net_A1, Net_A2, Net_B, Net_C, Net_D, Net_E
-import copy  # 用于保存模型的深拷贝
+import copy
 
 if __name__ == '__main__':
-
+    print("one by one train")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f'Using device: {device}')
     net = Net()
@@ -14,7 +14,7 @@ if __name__ == '__main__':
     trainloader, testloader, valloader = load_data(batch_size=64, num_workers=4, validation_split=0.1)
     criterion = nn.CrossEntropyLoss()
 
-    def train_net(net, trainloader, valloader, optimizer, epochs=300, patience=10):
+    def train_net(net, trainloader, valloader, optimizer, epochs=300, patience=20):
         net.train()
         best_model_wts = copy.deepcopy(net.state_dict())
         best_acc = 0.0
@@ -47,7 +47,6 @@ if __name__ == '__main__':
                     print(f'Early stopping at epoch {epoch + 1}')
                     break
 
-        # 训练结束后，加载最佳模型权重
         net.load_state_dict(best_model_wts)
         print('Finished Training')
 
@@ -67,7 +66,7 @@ if __name__ == '__main__':
 
     def test_net(net, testloader):
         net.eval()
-        num_classes = 10  # 假设有 10 个类别
+        num_classes = 10
         true_positives = [0] * num_classes
         false_negatives = [0] * num_classes
 
@@ -105,7 +104,7 @@ if __name__ == '__main__':
         net = net.to(device)
         optimizer = optim.SGD(net.parameters(), lr=1e-3)
         print(f"Training {name}...")
-        train_net(net, trainloader, valloader, optimizer, epochs=300, patience=10)
+        train_net(net, trainloader, valloader, optimizer, epochs=300, patience=20)
         print(f"Testing {name}...")
         recall = test_net(net, testloader)
         recalls[name] = recall
