@@ -35,12 +35,12 @@ def train_net(net, trainloader, valloader, optimizer, criterion, epochs=300, pat
         if val_acc > best_acc:
             best_acc = val_acc
             best_model_wts = copy.deepcopy(net.state_dict())
-            epochs_no_improve = 0
-        else:
-            epochs_no_improve += 1
-            if epochs_no_improve >= patience:
-                print(f'Early stopping at epoch {epoch + 1}')
-                break
+        #     epochs_no_improve = 0
+        # else:
+        #     epochs_no_improve += 1
+        #     if epochs_no_improve >= patience:
+        #         print(f'Early stopping at epoch {epoch + 1}')
+        #         break
 
     net.load_state_dict(best_model_wts)
     print('Finished Training')
