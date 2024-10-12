@@ -1,46 +1,38 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import torch
-import torchvision
-import torchvision.transforms as transforms
+def load_data(batch_size=64, num_workers=4, validation_split=0.1):
+    import torchvision
+    import torchvision.transforms as transforms
+    from torch.utils.data import DataLoader, SubsetRandomSampler
+    import numpy as np
 
-
-def load_data():
     transform = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5), (1.0, 1.0, 1.0))
+        # 添加其他数据增强或预处理操作
     ])
 
-    batch_size = 4
+    train_dataset = torchvision.datasets.CIFAR10(root='./data', train=True,
+                                                 download=True, transform=transform)
 
-    trainset = torchvision.datasets.CIFAR10(root='./data', train=True,
-                                            download=True, transform=transform)
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size,
-                                              shuffle=True, num_workers=2)
+    test_dataset = torchvision.datasets.CIFAR10(root='./data', train=False,
+                                                download=True, transform=transform)
 
-    testset = torchvision.datasets.CIFAR10(root='./data', train=False,
-                                           download=True, transform=transform)
-    testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
-                                             shuffle=False, num_workers=2)
+    # 创建数据集索引
+    num_train = len(train_dataset)
+    indices = list(range(num_train))
+    split = int(np.floor(validation_split * num_train))
 
-    classes = ('plane', 'car', 'bird', 'cat',
-               'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
+    np.random.shuffle(indices)
+    train_idx, val_idx = indices[split:], indices[:split]
 
-    return trainloader, testloader
+    train_sampler = SubsetRandomSampler(train_idx)
+    val_sampler = SubsetRandomSampler(val_idx)
 
-'''
-    def imshow(img):
-        img = img / 2 + 0.5     # unnormalize
-        npimg = img.numpy()
-        plt.imshow(np.transpose(npimg, (1, 2, 0)))
-        plt.show()
-        
-    # get some random training images
-    dataiter = iter(trainloader)
-    images, labels = next(dataiter)
+    trainloader = DataLoader(train_dataset, batch_size=batch_size,
+                             sampler=train_sampler, num_workers=num_workers)
 
-    # show images
-    imshow(torchvision.utils.make_grid(images))
-    # print labels
-    print(' '.join(f'{classes[labels[j]]:5s}' for j in range(batch_size)))
-'''
+    valloader = DataLoader(train_dataset, batch_size=batch_size,
+                           sampler=val_sampler, num_workers=num_workers)
+
+    testloader = DataLoader(test_dataset, batch_size=batch_size,
+                            shuffle=False, num_workers=num_workers)
+
+    return trainloader, testloader, valloader

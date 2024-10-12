@@ -1,9 +1,9 @@
 from load_data import load_data
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
 from net import Net, Net_A1, Net_A2, Net_B, Net_C, Net_D, Net_E
+import copy  # 用于保存模型的深拷贝
 
 if __name__ == '__main__':
 
@@ -11,32 +11,63 @@ if __name__ == '__main__':
     print(f'Using device: {device}')
     net = Net()
     net.to(device)
-    trainloader, testloader = load_data()
+    trainloader, testloader, valloader = load_data(batch_size=64, num_workers=4, validation_split=0.1)
     criterion = nn.CrossEntropyLoss()
 
-    def train_net(net, trainloader, optimizer, epochs=300):
+    def train_net(net, trainloader, valloader, optimizer, epochs=300, patience=10):
         net.train()
+        best_model_wts = copy.deepcopy(net.state_dict())
+        best_acc = 0.0
+        epochs_no_improve = 0
+
         for epoch in range(epochs):
             running_loss = 0.0
+            net.train()
             for i, data in enumerate(trainloader, 0):
                 inputs, labels = data[0].to(device), data[1].to(device)
-
-                optimizer.zero_grad()  # 使用传入的优化器
-
+                optimizer.zero_grad()
                 outputs = net(inputs)
                 loss = criterion(outputs, labels)
                 loss.backward()
-                optimizer.step()  # 使用传入的优化器进行更新
-
+                optimizer.step()
                 running_loss += loss.item()
 
-            print(f'Epoch {epoch + 1}, Loss: {running_loss / len(trainloader)}')
+            # 在验证集上计算性能
+            val_acc = evaluate_net(net, valloader)
+            print(f'Epoch {epoch + 1}, Loss: {running_loss / len(trainloader):.4f}, Val Acc: {val_acc * 100:.2f}%')
+
+            # 早停机制
+            if val_acc > best_acc:
+                best_acc = val_acc
+                best_model_wts = copy.deepcopy(net.state_dict())
+                epochs_no_improve = 0
+            else:
+                epochs_no_improve += 1
+                if epochs_no_improve >= patience:
+                    print(f'Early stopping at epoch {epoch + 1}')
+                    break
+
+        # 训练结束后，加载最佳模型权重
+        net.load_state_dict(best_model_wts)
         print('Finished Training')
 
+    def evaluate_net(net, dataloader):
+        net.eval()
+        correct = 0
+        total = 0
+        with torch.no_grad():
+            for data in dataloader:
+                images, labels = data[0].to(device), data[1].to(device)
+                outputs = net(images)
+                _, predicted = torch.max(outputs.data, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+        accuracy = correct / total
+        return accuracy
 
     def test_net(net, testloader):
         net.eval()
-        num_classes = 10  # Assuming 10 classes
+        num_classes = 10  # 假设有 10 个类别
         true_positives = [0] * num_classes
         false_negatives = [0] * num_classes
 
@@ -65,50 +96,18 @@ if __name__ == '__main__':
         print(f'Average Top-1 Recall Rate: {average_recall * 100:.2f}%')
         return average_recall
 
-    optimizer = optim.SGD(net.parameters(), lr=1e-3)
-    print("Training Net...")
-    train_net(net, trainloader, optimizer)
-    print("Testing Net...")
-    recall = test_net(net, testloader)
 
-    net_a1 = Net_A1().to(device)
-    net_a2 = Net_A2().to(device)
-    optimizer_a1 = optim.SGD(net_a1.parameters(), lr=1e-3)
-    optimizer_a2 = optim.SGD(net_a2.parameters(), lr=1e-3)
-    # 训练模型A1
-    print("Training Net_A1...")
-    train_net(net_a1, trainloader, optimizer_a1)
-    print("Testing Net_A1...")
-    recall_a1 = test_net(net_a1, testloader)
-    print("Training Net_A2...")
-    train_net(net_a2, trainloader, optimizer_a2)
-    print("Testing Net_A2...")
-    recall_a2 = test_net(net_a2, testloader)
+    nets = [Net(), Net_A1(), Net_A2(), Net_B(), Net_C(), Net_D(), Net_E()]
+    net_names = ['Net', 'Net_A1', 'Net_A2', 'Net_B', 'Net_C', 'Net_D', 'Net_E']
+    recalls = {}
 
-    net_b = Net_B().to(device)
-    optimizer_b = optim.SGD(net_b.parameters(), lr=1e-3)
-    print("Training Net_B...")
-    train_net(net_b, trainloader, optimizer_b)
-    print("Testing Net_B...")
-    recall_b = test_net(net_b, testloader)
+    for net, name in zip(nets, net_names):
+        net = net.to(device)
+        optimizer = optim.SGD(net.parameters(), lr=1e-3)
+        print(f"Training {name}...")
+        train_net(net, trainloader, valloader, optimizer, epochs=300, patience=10)
+        print(f"Testing {name}...")
+        recall = test_net(net, testloader)
+        recalls[name] = recall
 
-    net_c = Net_C().to(device)
-    optimizer_c = optim.SGD(net_c.parameters(), lr=1e-3)
-    print("Training Net_C...")
-    train_net(net_c, trainloader, optimizer_c)
-    print("Testing Net_C...")
-    recall_c = test_net(net_c, testloader)
-
-    net_d = Net_D().to(device)
-    optimizer_d = optim.SGD(net_d.parameters(), lr=1e-3)
-    print("Training Net_D...")
-    train_net(net_d, trainloader, optimizer_d)
-    print("Testing Net_D...")
-    recall_d = test_net(net_d, testloader)
-
-    net_e = Net_E().to(device)
-    optimizer_e = optim.SGD(net_e.parameters(), lr=1e-3)
-    print("Training Net_E...")
-    train_net(net_e, trainloader, optimizer_e)
-    print("Testing Net_E...")
-    recall_e = test_net(net_e, testloader)
+    print("Recalls:", recalls)
