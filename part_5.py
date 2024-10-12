@@ -5,6 +5,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from net import Net, Net_A1, Net_A2, Net_B, Net_C, Net_D, Net_E, Net_5A
 import copy
+import time
 
 if __name__ == '__main__':
 
@@ -17,6 +18,7 @@ if __name__ == '__main__':
 
 
     def train_net(net, trainloader, valloader, optimizer, epochs=300, patience=10):
+        start_time = time.time()
         net.train()
         best_model_wts = copy.deepcopy(net.state_dict())
         best_acc = 0.0
@@ -51,6 +53,8 @@ if __name__ == '__main__':
 
         # 训练结束后，加载最佳模型权重
         net.load_state_dict(best_model_wts)
+        end_time = time.time()
+        print(f'Training time: {end_time - start_time} seconds')
         print('Finished Training')
 
 
@@ -115,5 +119,4 @@ if __name__ == '__main__':
     train_net(net, trainloader, valloader, optimizer_2)
     print("Testing Net...")
     recall_2 = test_net(net, testloader)
-
 
